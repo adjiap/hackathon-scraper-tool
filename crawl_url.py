@@ -8,7 +8,7 @@ Author:
     Adji Arioputro
 
 License:
-    BSD-3 License
+    MIT License
 
 """
 import argparse
