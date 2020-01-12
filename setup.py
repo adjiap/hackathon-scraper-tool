@@ -1,9 +1,21 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from setuptools import setup, find_packages
+from sphinx.setup_command import BuildDoc
+cmdclass = {'build_sphinx': BuildDoc}
+
+name = 'HackathonScraping-Tool'
+version = '0.4'
 
 setup(
-    name='WebScraping-Tool',
-    version='0.4',
-    install_requires=['beautifulsoup4', 'selenium', 'pandas'],
+    name=name,
+    version=version,
+    install_requires=['beautifulsoup4',
+                      'selenium',
+                      'pandas',
+                      'sphinx',
+                      'Jinja2'],
     packages=find_packages(),
     url='https://github.com/adjiap/hackathon-scraper-tool',
     license='BSD 3-Clause License',
@@ -17,6 +29,12 @@ setup(
                  'Topic :: Internet :: WWW/HTTP :: Browsers'
                  'Topic :: Text Processing :: Markup :: HTML'],
     author='Adji Arioputro',
-    author_email='',
-    description=''
+    maintainer='Adji Arioputro',
+    description='Script to crawl hackathon.com website',
+    command_options={
+            'build_sphinx': {
+                'project': ('setup.py', name),
+                'version': ('setup.py', version),
+            }
+    }
 )
