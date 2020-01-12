@@ -11,7 +11,6 @@ Welcome to hackathon-scraper-tool's documentation!
    :caption: Contents:
 
    crawl_url
-   setup
 
 
 Indices and tables

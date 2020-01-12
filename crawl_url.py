@@ -4,12 +4,17 @@
 """
 Original tutorial came from https://www.youtube.com/watch?v=XQgXKtPSzUI
 
-@Author: Adji Arioputro
+Author:
+    Adji Arioputro
+
+License:
+    BSD-3 License
 
 """
 import argparse
 import datetime
 import logging
+import os
 from typing import List, Iterable
 from bs4.element import ResultSet, Tag
 from bs4 import BeautifulSoup
@@ -19,8 +24,11 @@ import time
 import pandas as pd
 from collections import Counter
 
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, \
-    StaleElementReferenceException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    ElementClickInterceptedException,
+    StaleElementReferenceException,
+)
 
 
 def getArgs():
@@ -30,12 +38,20 @@ def getArgs():
         Dictionary of arguments passed
 
     """
-    parser = argparse.ArgumentParser(description='Run Crawl Script to parse Hackathon.com website')
-    parser.add_argument('-y', '--year',
-                        help="Crawl for one particular year. Default is from current year to 5"
-                             "years before")
-    parser.add_argument('-c', '--country',
-                        help="Crawl for another particular country. Default is Germany")
+    parser = argparse.ArgumentParser(
+        description="Run Crawl Script to parse Hackathon.com website"
+    )
+    parser.add_argument(
+        "-y",
+        "--year",
+        help="Crawl for one particular year. Default is from current year to 5"
+        "years before",
+    )
+    parser.add_argument(
+        "-c",
+        "--country",
+        help="Crawl for another particular country. Default is Germany",
+    )
     argvars = vars(parser.parse_args())
     return argvars
 
@@ -50,6 +66,11 @@ def crawl_url(url: str) -> ResultSet(Tag):
 
     Returns:
         BeautifulSoup ResultSet with relevant Page Source to be processed
+
+    Raises:
+        NoSuchElementException: When it can't find the More button anymore (Only for Debugging)
+        StaleElementReferenceException: Exception raised when the More button is not seen in window
+
 
     """
     # Use selenium WebDriver to run an automated Chrome Browser.
@@ -91,7 +112,8 @@ def crawl_url(url: str) -> ResultSet(Tag):
 
 def scroll_down(driver: webdriver.Chrome) -> None:
     """A method for scrolling the page.
-    original code from https://stackoverflow.com/questions/48850974/selenium-scroll-to-end-of-page-indynamically-loading-webpage/48851166
+
+    Original code from https://stackoverflow.com/questions/48850974/selenium-scroll-to-end-of-page-indynamically-loading-webpage/48851166
 
     # HACK: Due to JavaScript issue where the More Button cannot be clicked unless seen on window
 
@@ -115,7 +137,7 @@ def scroll_down(driver: webdriver.Chrome) -> None:
         last_height = new_height
 
 
-def parse_keywords(container: ResultSet(Tag), year: int) -> Counter:
+def parse_keywords(container: ResultSet(Tag), year: int) -> pd.DataFrame:
     """This method parses all the keywords that had shown up on the page.
 
     Args:
@@ -123,7 +145,7 @@ def parse_keywords(container: ResultSet(Tag), year: int) -> Counter:
         container: BeautifulSoup ResultSet with relevant Page Source to be processed
 
     Returns:
-        A sorted Dataframe-Object with keywords and its descending number of occurrences.
+        A sorted Dataframe-Object with keywords, the year and its number of occurrences.
 
     """
     keyword_list = []  # Type: str
@@ -146,7 +168,7 @@ def parse_cities(container: ResultSet(Tag), year: int) -> pd.DataFrame:
         container: BeautifulSoup ResultSet with relevant Page Source to be processed
 
     Returns:
-        A sorted Dataframe-Object with city names and its descending number of occurrences.
+        A sorted Dataframe-Object with city names, the year and its number of occurrences.
 
     """
     keyword_list = []  # Type: str
@@ -162,6 +184,11 @@ def parse_cities(container: ResultSet(Tag), year: int) -> pd.DataFrame:
 
 
 def main_crawl():
+    """ Main Crawl function
+
+    Raises:
+        ElementClickInterceptedException: When the URL Webpage unexpectedly closes.
+    """
     if args["country"]:
         country = args["country"]
     else:
@@ -173,8 +200,12 @@ def main_crawl():
         main_url = f"https://www.hackathon.com/country/{country}/{year}"
         try:
             container = crawl_url(main_url)
-            df_cities = df_cities.append(parse_cities(container, year), ignore_index=True)
-            df_keywords = df_keywords.append(parse_keywords(container, year), ignore_index=True)
+            df_cities = df_cities.append(
+                parse_cities(container, year), ignore_index=True
+            )
+            df_keywords = df_keywords.append(
+                parse_keywords(container, year), ignore_index=True
+            )
         except ElementClickInterceptedException as e:
             logging.error(e)
             pass
@@ -184,15 +215,21 @@ def main_crawl():
             main_url = f"https://www.hackathon.com/country/{country}/{year}"
             try:
                 container = crawl_url(main_url)
-                df_cities = df_cities.append(parse_cities(container, year), ignore_index=True)
-                df_keywords = df_keywords.append(parse_keywords(container, year), ignore_index=True)
+                df_cities = df_cities.append(
+                    parse_cities(container, year), ignore_index=True
+                )
+                df_keywords = df_keywords.append(
+                    parse_keywords(container, year), ignore_index=True
+                )
             except ElementClickInterceptedException as e:
                 logging.error(e)
                 pass
+    if not os.path.isdir(r"C:/Temp"):
+        os.mkdir(r"C:/Temp")
     df_cities.to_csv(r"C:/Temp/Cities.csv")
     df_keywords.to_csv(r"C:/Temp/Keywords.csv")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = getArgs()
     main_crawl()
