@@ -15,7 +15,7 @@
  2. Open the command line (e.g. Microsoft PowerShell) and go to tool folder.
  3. Run the following commands.
     ````
-    pip setup.py install           # Installs dependencies in the site-packages
+    pip install .           # Installs dependencies in the site-packages
     python setup.py build_sphinx   # Creates HTML documentation in .\build
     ````
  4. Finally, in the same folder, enter the following to run the script.
