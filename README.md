@@ -1,4 +1,4 @@
-# hacktahon-scraper-tool
+# hackathon-scraper-tool
 
  This tool is originally developed to crawl the www.hackathon.com website, specifically for scraping
  pages for the country, Germany.
@@ -26,3 +26,4 @@
     # # This crawls the hackathon website exclusively for the year 2016, and for the
     # # UK.
     ````
+    This script will then creates the Keyword and Cities .CSV files in the C:/Temp folder
